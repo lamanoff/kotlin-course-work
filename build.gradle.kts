@@ -74,6 +74,12 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains:kotlin-react:16.13.1-pre.113-kotlin-1.4.0")
                 implementation("org.jetbrains:kotlin-react-dom:16.13.1-pre.113-kotlin-1.4.0")
+                implementation("io.ktor:ktor-client-js:1.4.0")
+                implementation("io.ktor:ktor-client-json-js:1.4.0")
+                implementation("io.ktor:ktor-client-serialization-js:1.4.0")
+                implementation(npm("react", "16.14.0"))
+                implementation(npm("react-dom", "16.14.0"))
+                implementation(npm("@material-ui/core", "4.11.2"))
             }
         }
         val jsTest by getting {

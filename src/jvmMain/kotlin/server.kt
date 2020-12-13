@@ -1,31 +1,31 @@
+
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.html.*
 import io.ktor.http.*
 import io.ktor.http.content.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.html.*
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
 
 fun HTML.index() {
     head {
-        title("Hello from Ktor!")
+        title("Stackoverflow search")
     }
     body {
-        div {
-            +"Hello from Ktor"
-        }
         div {
             id = "root"
         }
         script(src = "/static/output.js") {}
+        script(src = "https://code.getmdl.io/1.3.0/material.min.js") {}
+        link(href = "https://fonts.googleapis.com/icon?family=Material+Icons", rel = "stylesheet") {}
+        link(href = "/static/style.css", rel = "stylesheet") {}
+        link(href = "https://code.getmdl.io/1.3.0/material.indigo-pink.min.css", rel = "stylesheet") {}
+        link(href = "https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap", rel = "stylesheet") {}
     }
 }
 
@@ -49,23 +49,14 @@ fun main() {
             }
             route("api") {
                 post("search") {
-                    val stub = listOf(
-                        "https://www.google.com/",
-                        "https://yandex.ru/",
-                        "https://www.youtube.com/"
-                    )
-                    call.respond(stub)
+                    val body = call.receive<String>()
+                    val payload = mapOf("question" to body)
+                    val resp = khttp.get("http://0.0.0.0:8888/getAnswer", params = payload)
+                    call.respond(resp)
                 }
             }
             static("/static") {
                 resources()
-            }
-
-            get("/answer") {
-                val question: String = call.parameters["question"].toString()
-                val payload = mapOf("question" to question)
-                val r = khttp.get("http://0.0.0.0:8888/getAnswer", params = payload)
-                call.respond(r.text)
             }
         }
     }.start(wait = true)
