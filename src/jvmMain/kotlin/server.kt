@@ -22,6 +22,7 @@ fun HTML.index() {
         }
         script(src = "/static/output.js") {}
         script(src = "https://code.getmdl.io/1.3.0/material.min.js") {}
+        script(src = "https://kit.fontawesome.com/864f4e1060.js") {}
         link(href = "https://fonts.googleapis.com/icon?family=Material+Icons", rel = "stylesheet") {}
         link(href = "/static/style.css", rel = "stylesheet") {}
         link(href = "https://code.getmdl.io/1.3.0/material.indigo-pink.min.css", rel = "stylesheet") {}

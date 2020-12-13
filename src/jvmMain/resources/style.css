@@ -5,3 +5,28 @@
 .center {
     margin: 5px auto;
 }
+
+.header {
+    z-index: 0 !important;
+}
+
+.main {
+    margin-top: -250px;
+    height: 94%;
+}
+
+.light-title {
+    background-color: whitesmoke;
+}
+
+.user-icon {
+    font-size: 100px;
+}
+
+.message-line {
+    margin: auto !important;
+}
+
+.message-input {
+    width: 100% !important;
+}

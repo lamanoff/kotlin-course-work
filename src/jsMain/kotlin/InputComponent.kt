@@ -1,4 +1,3 @@
-
 import kotlinx.html.InputType
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onSubmitFunction
@@ -32,13 +31,13 @@ val InputComponent = functionalComponent<InputProps> { props ->
 
     form {
         attrs.onSubmitFunction = submitHandler
-        div (classes = "mdl-textfield mdl-js-textfield") {
+        div (classes = "mdl-textfield mdl-js-textfield message-input") {
             input(InputType.text, classes = "mdl-textfield__input") {
                 attrs.onChangeFunction = changeHandler
                 attrs.value = text
             }
             label(classes = "mdl-textfield__label") {
-                +"Enter your question"
+                +"Enter message..."
             }
         }
     }
