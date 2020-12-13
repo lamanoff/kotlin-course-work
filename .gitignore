@@ -1,3 +1,7 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+
 # Compiled class file
 *.class
 
