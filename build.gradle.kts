@@ -15,6 +15,7 @@ repositories {
     maven { url = uri("https://dl.bintray.com/kotlin/kotlin-js-wrappers") }
     maven { url = uri("https://dl.bintray.com/kotlin/kotlinx") }
     maven { url = uri("https://dl.bintray.com/kotlin/ktor") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 kotlin {
@@ -61,6 +62,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-netty:1.4.0")
                 implementation("io.ktor:ktor-html-builder:1.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
+                implementation(kotlin("script-runtime"))
             }
         }
         val jvmTest by getting {
@@ -78,6 +80,10 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-js"))
             }
+        }
+
+        dependencies {
+            implementation("com.github.ascclemens:khttp:0.1.0")
         }
     }
 }

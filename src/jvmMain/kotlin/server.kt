@@ -9,6 +9,10 @@ import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.html.*
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 fun HTML.index() {
     head {
@@ -55,6 +59,13 @@ fun main() {
             }
             static("/static") {
                 resources()
+            }
+
+            get("/answer") {
+                val question: String = call.parameters["question"].toString()
+                val payload = mapOf("question" to question)
+                val r = khttp.get("http://0.0.0.0:8888/getAnswer", params = payload)
+                call.respond(r.text)
             }
         }
     }.start(wait = true)
