@@ -15,6 +15,19 @@
     height: 94%;
 }
 
+.content {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.message-container {
+    min-height: 120px !important;
+}
+
+.no-scroll {
+    overflow-y: hidden !important;
+}
+
 .light-title {
     background-color: whitesmoke;
 }
@@ -28,5 +41,15 @@
 }
 
 .message-input {
-    width: 100% !important;
+    width: 98% !important;
+    margin: 0px 12px!important;
+}
+
+.grid-d {
+    display: grid;
+    grid-template-rows: 61px 1fr 80px;
+}
+
+.full-height {
+    height: 100%;
 }

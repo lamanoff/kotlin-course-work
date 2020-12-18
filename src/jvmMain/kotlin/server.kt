@@ -49,6 +49,23 @@ fun main() {
                 call.respondHtml(HttpStatusCode.OK, HTML::index)
             }
             route("api") {
+                get("chat"){
+                    var id = call.parameters["id"]?.toInt()
+                    val messages = mutableListOf(
+                        MessageItem("John Doe", "Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis"),
+                        MessageItem("John Doe", "Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis"),
+                        MessageItem("John Doe", "Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis"),
+                        MessageItem("Sandy Nilson", "Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis"),
+                        MessageItem("Sandy Nilson", "Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis"),
+                        MessageItem("Sandy Nilson", "Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis"),
+                        MessageItem("Baby Shark", "Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis")
+                    )
+                    call.respond(messages)
+                }
+                post("message") {
+                    val message = call.receive<MessageItem>()
+                    call.respond(listOf(message))
+                }
                 post("search") {
                     val body = call.receive<String>()
                     val payload = mapOf("question" to body)

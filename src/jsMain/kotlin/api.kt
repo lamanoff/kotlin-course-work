@@ -9,9 +9,18 @@ val jsonClient = HttpClient {
     install(JsonFeature) { serializer = KotlinxSerializer() }
 }
 
-suspend fun searchAnswers(question: String) : List<String> {
-    return jsonClient.post(window.location.origin + "/api/search"){
+val endpoint = window.location.origin
+
+suspend fun getMessages(chat_id: Int) : List<MessageItem> {
+    return jsonClient.get("$endpoint/api/chat"){
         contentType(ContentType.Application.Json)
-        body = question
+        parameter("id", chat_id)
+    }
+}
+
+suspend fun sendMessage(chat_id: Int, author: String, content: String) : List<MessageItem> {
+    return jsonClient.post("$endpoint/api/message"){
+        contentType(ContentType.Application.Json)
+        body = MessageItem(author, content)
     }
 }

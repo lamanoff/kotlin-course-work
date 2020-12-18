@@ -48,6 +48,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(kotlin("stdlib-common"))
+                implementation("io.ktor:ktor-client-core:1.4.0")
             }
         }
         val commonTest by getting {
@@ -79,7 +81,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-serialization-js:1.4.0")
                 implementation(npm("react", "16.14.0"))
                 implementation(npm("react-dom", "16.14.0"))
-                implementation(npm("@material-ui/core", "4.11.2"))
             }
         }
         val jsTest by getting {
