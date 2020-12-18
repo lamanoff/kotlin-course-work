@@ -66,6 +66,10 @@ fun main() {
                     val message = call.receive<MessageItem>()
                     call.respond(listOf(message))
                 }
+                get("tag") {
+                    var id = call.parameters["chat_id"]?.toInt()
+                    call.respond("random chat tag")
+                }
                 post("search") {
                     val body = call.receive<String>()
                     val payload = mapOf("question" to body)

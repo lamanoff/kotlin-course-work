@@ -18,6 +18,13 @@ suspend fun getMessages(chat_id: Int) : List<MessageItem> {
     }
 }
 
+suspend fun getTag(chat_id: Int) : String {
+    return jsonClient.get("$endpoint/api/tag"){
+        contentType(ContentType.Application.Json)
+        parameter("chat_id", chat_id)
+    }
+}
+
 suspend fun sendMessage(chat_id: Int, author: String, content: String) : List<MessageItem> {
     return jsonClient.post("$endpoint/api/message"){
         contentType(ContentType.Application.Json)

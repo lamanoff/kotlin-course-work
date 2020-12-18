@@ -45,6 +45,11 @@
     margin: 0px 12px!important;
 }
 
+.chat-tag {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+}
+
 .grid-d {
     display: grid;
     grid-template-rows: 61px 1fr 80px;

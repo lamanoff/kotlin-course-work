@@ -9,10 +9,12 @@ private val scope = MainScope()
 
 val app = functionalComponent<RProps> {
     val (messages, setMessages) = useState(emptyList<MessageItem>())
+    val (tag, setTag) = useState("")
 
     useEffect(dependencies = listOf()) {
         scope.launch {
             setMessages(getMessages(0))
+            setTag(getTag(0))
         }
     }
 
@@ -37,6 +39,11 @@ val app = functionalComponent<RProps> {
                     div(classes = "mdl-card__title light-title") {
                         h2(classes = "mdl-card__title-text") {
                             +"Chat"
+                        }
+                        span (classes = "chat-tag mdl-chip") {
+                            span (classes = "mdl-chip__text") {
+                                +tag
+                            }
                         }
                     }
                     div(classes = "content") {
