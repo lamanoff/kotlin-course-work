@@ -9,7 +9,7 @@ ask_route = r = APIRouter()
 @r.get('/getAnswer')
 async def get_answer(question, bot=Depends(get_bot)) -> ty.Dict:
     try:
-        answer = bot.generate_answer(question)
+        answer, tag = bot.generate_answer(question)
     except Exception as exc:
         return {'status': 'error', 'reason': str(exc)}
-    return {'status': 'ok', 'response': str(answer)}
+    return {'status': 'ok', 'answer': str(answer), 'tag': tag}

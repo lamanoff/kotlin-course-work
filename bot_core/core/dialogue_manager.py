@@ -89,4 +89,4 @@ class DialogueManager(object):
             # Pass prepared_question to thread_ranker to get predictions.
             thread_id = self.thread_ranker.get_best_thread(prepared_question, tag)
 
-            return self.ANSWER_TEMPLATE % (tag, thread_id)
+            return self.ANSWER_TEMPLATE % (tag, thread_id), tag
