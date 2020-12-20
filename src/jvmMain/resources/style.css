@@ -6,6 +6,16 @@
     margin: 5px auto;
 }
 
+.center-full {
+    margin: auto;
+}
+
+.card {
+    height: 130px;
+    width: 300px;
+    padding: 10px;
+}
+
 .header {
     z-index: 0 !important;
 }

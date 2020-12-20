@@ -14,7 +14,7 @@ import kotlinx.html.*
 
 fun HTML.index() {
     head {
-        title("Stackoverflow search")
+        title("Stackoverflow chat")
     }
     body {
         div {
@@ -49,6 +49,10 @@ fun main() {
                 call.respondHtml(HttpStatusCode.OK, HTML::index)
             }
             route("api") {
+                post("nickname"){
+                    val nickname = call.receive<String>()
+                    call.respond("OK")
+                }
                 get("chat"){
                     var id = call.parameters["id"]?.toInt()
                     val messages = mutableListOf(

@@ -31,3 +31,10 @@ suspend fun sendMessage(chat_id: Int, author: String, content: String) : List<Me
         body = MessageItem(author, content)
     }
 }
+
+suspend fun sendNickname(nickname: String) {
+    return jsonClient.post("$endpoint/api/nickname"){
+        contentType(ContentType.Application.Json)
+        body = nickname
+    }
+}
