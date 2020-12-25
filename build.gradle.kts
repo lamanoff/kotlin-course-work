@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+//import sun.jvmstat.monitor.MonitoredVmUtil.commandLine
 
 plugins {
     kotlin("multiplatform") version "1.4.10"
@@ -91,6 +92,13 @@ kotlin {
 
         dependencies {
             implementation("com.github.ascclemens:khttp:0.1.0")
+            implementation("io.ktor:ktor-websockets:1.4.0")
+            implementation("org.jetbrains.exposed:exposed-core:0.24.1")
+            implementation("org.jetbrains.exposed:exposed-dao:0.24.1")
+            implementation("org.jetbrains.exposed:exposed-jdbc:0.24.1")
+            implementation("com.zaxxer:HikariCP:2.7.8")
+            implementation("org.postgresql:postgresql:42.2.2")
+            implementation("org.jetbrains.exposed:exposed:0.17.7")
         }
     }
 }
@@ -110,6 +118,7 @@ tasks.getByName<Jar>("jvmJar") {
 }
 
 tasks.getByName<JavaExec>("run") {
+//    commandLine("bash start_python.sh")
     dependsOn(tasks.getByName<Jar>("jvmJar"))
     classpath(tasks.getByName<Jar>("jvmJar"))
 }

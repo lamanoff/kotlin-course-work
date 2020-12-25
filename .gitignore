@@ -1,6 +1,7 @@
 # Byte-compiled
 __pycache__/
 *.py[cod]
+bot_core/venv
 
 # ignore init tags file got bot
 bot_core/core/data/thread_embeddings_by_tags/*
