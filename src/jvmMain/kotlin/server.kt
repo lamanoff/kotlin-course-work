@@ -1,3 +1,4 @@
+
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.html.*
@@ -16,9 +17,8 @@ import io.ktor.util.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.html.*
-import org.slf4j.LoggerFactory.getLogger
-import java.time.Duration
 import org.json.JSONObject
+import java.time.Duration
 
 
 fun HTML.index() {
@@ -68,9 +68,6 @@ fun Application.main() {
     install(WebSockets) {
         pingPeriod = Duration.ofMinutes(1)
     }
-    install(Sessions) {
-        cookie<ChatApplication.ChatSession>("SESSION")
-    }
 
 //    intercept(ApplicationCallPipeline.Features) {
 //        if (call.sessions.get<ChatSession>() == null) {
@@ -80,6 +77,10 @@ fun Application.main() {
 //    val tag_by_room = ConcurrentHashMap<String, MutableList<WebSocketSession>>()
     routing {
         webSocket("/ws") {
+            for(frame in incoming) {
+                frame as? Frame.Text ?: continue
+                send(frame.readText())
+            }
             incoming.consumeEach { frame ->
                 if (frame is Frame.Text) {
                     val json = JSONObject(frame.readText())
@@ -129,11 +130,11 @@ fun Application.main() {
                     call.respond("ERROR")
                     return@get
                 }
-                val messages = db.return_messages(tag)
+                //val messages = db.return_messages(tag)
                 val wrap_to_message_ites = mutableListOf<MessageItem>()
-                for (message in messages) {
-                    wrap_to_message_ites.add(MessageItem(message.first, message.second))
-                }
+//                for (message in messages) {
+//                    wrap_to_message_ites.add(MessageItem(message.first, message.second))
+//                }
 
                 call.respond(wrap_to_message_ites)
             }
@@ -142,7 +143,8 @@ fun Application.main() {
                 call.respond(listOf(message))
             }
             get("tag") {
-                var id = call.parameters["chat_id"]?.toInt()
+                var id = call.parameters["question"]
+                // todo: тут нужно по вопросу получить тэг
                 call.respond("random chat tag")
             }
             post("search") {
