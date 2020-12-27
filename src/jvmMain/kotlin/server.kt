@@ -15,7 +15,6 @@ import io.ktor.server.netty.*
 import io.ktor.sessions.*
 import io.ktor.util.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.html.*
 import org.json.JSONObject
 import java.time.Duration
@@ -80,39 +79,35 @@ fun Application.main() {
             for(frame in incoming) {
                 frame as? Frame.Text ?: continue
                 send(frame.readText())
-            }
-            incoming.consumeEach { frame ->
-                if (frame is Frame.Text) {
-                    val json = JSONObject(frame.readText())
-                    var tag = ""
-                    var answer = ""
-                    if (!json.has("tag")) {
-                        // tag ещё не создан нужно ответить на вопрос и создать комнату
-                        val params = JSONObject(frame.readText())
-                        val body = params["question"] ?: return@webSocket
-                        val payload = mapOf("question" to body)
-                        val resp = khttp.get("http://127.0.0.1:8000/getAnswer", params = payload as Map<String, String>)
-                        val resp_json = resp.jsonObject
-                        if (resp_json.get("status") == "ok") {
-                            if (resp_json.has("tag") and resp_json.has("answer")) {
-                                tag = resp_json["tag"] as String
-                                answer = resp_json["answer"] as String
-                                ws_server.create_room(tag as String, this)
-                            }
-                        } else {
-                            this.send(Frame.Text("error"))
-                            return@webSocket
+                val json = JSONObject(frame.readText())
+                var tag = ""
+                var answer = ""
+                if (!json.has("tag")) {
+                    // tag ещё не создан нужно ответить на вопрос и создать комнату
+                    val params = JSONObject(frame.readText())
+                    val body = params["content"] ?: return@webSocket
+                    val payload = mapOf("question" to body)
+                    val resp = khttp.get("http://127.0.0.1:8000/getAnswer", params = payload as Map<String, String>)
+                    val resp_json = resp.jsonObject
+                    if (resp_json.get("status") == "ok") {
+                        if (resp_json.has("tag") and resp_json.has("answer")) {
+                            tag = resp_json["tag"] as String
+                            answer = resp_json["answer"] as String
+                            ws_server.create_room(tag as String, this)
                         }
-                    }
-                    val from = json.get("from")
-                    if ((tag != "") and (answer != "")) {
-                        ws_server.notify_msg_by_tag(tag as String, from as String, answer as String)
                     } else {
-                        val tag = json.get("tag")
-                        val msg = json.get("question")
-                        ws_server.create_room(tag as String, this)
-                        ws_server.notify_msg_by_tag(tag as String, from as String, msg as String)
+                        this.send(Frame.Text("error"))
+                        return@webSocket
                     }
+                }
+                val from = json.get("author")
+                if ((tag != "") and (answer != "")) {
+                    ws_server.notify_msg_by_tag(tag as String, from as String, answer as String)
+                } else {
+                    val tag = json.get("tag")
+                    val msg = json.get("content")
+                    ws_server.create_room(tag as String, this)
+                    ws_server.notify_msg_by_tag(tag as String, from as String, msg as String)
                 }
             }
         }
@@ -144,7 +139,6 @@ fun Application.main() {
             }
             get("tag") {
                 var id = call.parameters["question"]
-                // todo: тут нужно по вопросу получить тэг
                 call.respond("random chat tag")
             }
             post("search") {

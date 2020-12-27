@@ -26,6 +26,8 @@ val app = functionalComponent<RProps> {
         val message = JSON.parse<MessageItem>(event.data.toString())
         console.info(messages.union(listOf(message)).toMutableList())
         setMessages(messages.plus(message))
+        if (message.tag != "")
+            setTag(message.tag)
     }
 
     socket.onclose = { event ->
@@ -118,7 +120,7 @@ val app = functionalComponent<RProps> {
                                         onSubmit = { input ->
                                             scope.launch {
                                                 setQuestion(input)
-                                                setTag(getTag(question))
+//                                                setTag(getTag(question))
                                                 setInChat(true)
                                             }
                                         }

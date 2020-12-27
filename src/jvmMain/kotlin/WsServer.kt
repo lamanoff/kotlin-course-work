@@ -1,11 +1,11 @@
 package io.ktor.samples.chat
 
 import io.ktor.http.cio.websocket.*
-import kotlinx.coroutines.channels.*
 import org.json.JSONObject
 import java.util.*
-import java.util.concurrent.*
-import java.util.concurrent.atomic.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 
 
 class WsServer {
@@ -40,7 +40,7 @@ class WsServer {
         val sockets_by_tag = this.tag_sockets.get(tag) ?: return
         println("notify: ${sockets_by_tag}")
         for (sock in sockets_by_tag){
-            val json = JSONObject(hashMapOf("tag" to tag, "from" to from_name, "answer" to message) as Map<String, Any>?)
+            val json = JSONObject(hashMapOf("tag" to tag, "author" to from_name, "content" to message) as Map<String, Any>?)
             sock.send(Frame.Text(json.toString()))
         }
     }
