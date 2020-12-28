@@ -44,6 +44,17 @@ fun main() {
 
 data class ChatSession(val id: String)
 
+fun ask_bot(question: String): Pair<String, String> {
+    val payload = mapOf("question" to question)
+    val resp = khttp.get("http://127.0.0.1:8000/getAnswer", params = payload)
+    val resp_json = resp.jsonObject
+    if (resp_json.get("status") == "ok") {
+        if (resp_json.has("tag") and resp_json.has("answer")) {
+            return Pair(resp_json["tag"] as String, resp_json["answer"] as String)
+        }
+    }
+    return Pair("error", "bot dont available")
+}
 
 fun Application.main() {
     val db = DbController()
@@ -76,38 +87,46 @@ fun Application.main() {
 //    val tag_by_room = ConcurrentHashMap<String, MutableList<WebSocketSession>>()
     routing {
         webSocket("/ws") {
-            for(frame in incoming) {
+            for (frame in incoming) {
                 frame as? Frame.Text ?: continue
-                send(frame.readText())
+                this.send(frame.readText())
+
                 val json = JSONObject(frame.readText())
-                var tag = ""
                 var answer = ""
-                if (!json.has("tag")) {
-                    // tag ещё не создан нужно ответить на вопрос и создать комнату
-                    val params = JSONObject(frame.readText())
-                    val body = params["content"] ?: return@webSocket
-                    val payload = mapOf("question" to body)
-                    val resp = khttp.get("http://127.0.0.1:8000/getAnswer", params = payload as Map<String, String>)
-                    val resp_json = resp.jsonObject
-                    if (resp_json.get("status") == "ok") {
-                        if (resp_json.has("tag") and resp_json.has("answer")) {
-                            tag = resp_json["tag"] as String
-                            answer = resp_json["answer"] as String
-                            ws_server.create_room(tag as String, this)
-                        }
-                    } else {
-                        this.send(Frame.Text("error"))
-                        return@webSocket
+
+                val params = JSONObject(frame.readText())
+                val question = params["content"] ?: return@webSocket
+                println(json)
+
+                val tag = json.get("tag") as String
+                val author = json.get("author") as String
+                val message = json.get("content") as String
+
+                println("heello")
+                ws_server.notify_msg_by_tag(tag, author, message)
+
+                when (tag) {
+                    "" -> {
+                        // tag ещё не создан нужно ответить на вопрос и создать комнату
+                        val bot_answer: Pair<String, String> = ask_bot(question as String)
+                        ws_server.create_room(bot_answer.first as String, this)
+
+                        ws_server.notify_msg_by_tag(
+                            bot_answer.first as String,
+                            "bot_assistant" as String,
+                            bot_answer.second as String
+                        )
                     }
-                }
-                val from = json.get("author")
-                if ((tag != "") and (answer != "")) {
-                    ws_server.notify_msg_by_tag(tag as String, from as String, answer as String)
-                } else {
-                    val tag = json.get("tag")
-                    val msg = json.get("content")
-                    ws_server.create_room(tag as String, this)
-                    ws_server.notify_msg_by_tag(tag as String, from as String, msg as String)
+                    "error" -> {
+                    }
+                    else -> {
+                        val bot_answer: Pair<String, String> = ask_bot(question as String)
+                        ws_server.notify_msg_by_tag(
+                            bot_answer.first as String,
+                            "bot_assistant" as String,
+                            bot_answer.second as String
+                        )
+                    }
                 }
             }
         }
