@@ -102,7 +102,6 @@ fun Application.main() {
                 val author = json.get("author") as String
                 val message = json.get("content") as String
 
-                println("heello")
                 ws_server.notify_msg_by_tag(tag, author, message)
 
                 when (tag) {
