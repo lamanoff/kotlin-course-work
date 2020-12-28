@@ -3,21 +3,16 @@ import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.html.*
 import io.ktor.http.*
-import io.ktor.http.cio.websocket.*
 import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.samples.chat.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.sessions.*
-import io.ktor.util.*
-import io.ktor.websocket.*
 import kotlinx.html.*
-import org.json.JSONObject
-import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.set
 
 
 fun HTML.index() {
@@ -42,8 +37,6 @@ fun main() {
     embeddedServer(Netty, port = 8080, module = Application::main).start(wait = true)
 }
 
-data class ChatSession(val id: String)
-
 fun ask_bot(question: String): Pair<String, String> {
     val payload = mapOf("question" to question)
     val resp = khttp.get("http://127.0.0.1:8000/getAnswer", params = payload)
@@ -57,7 +50,7 @@ fun ask_bot(question: String): Pair<String, String> {
 }
 
 fun Application.main() {
-    val ws_server = WsServer()
+    val messages = ConcurrentHashMap<String, MutableList<MessageItem>>()
 
     install(ContentNegotiation) {
         json()
@@ -73,104 +66,24 @@ fun Application.main() {
     }
     install(DefaultHeaders)
     install(CallLogging)
-    install(WebSockets) {
-        pingPeriod = Duration.ofMinutes(1)
-    }
 
-//    intercept(ApplicationCallPipeline.Features) {
-//        if (call.sessions.get<ChatSession>() == null) {
-//            call.sessions.set(ChatSession(generateNonce()))
-//        }
-//    }
-//    val tag_by_room = ConcurrentHashMap<String, MutableList<WebSocketSession>>()
     routing {
-        webSocket("/ws") {
-            for (frame in incoming) {
-                frame as? Frame.Text ?: continue
-                this.send(frame.readText())
-
-                val json = JSONObject(frame.readText())
-                var answer = ""
-
-                val params = JSONObject(frame.readText())
-                val question = params["content"] ?: return@webSocket
-                println(json)
-
-                val tag = json.get("tag") as String
-                val author = json.get("author") as String
-                val message = json.get("content") as String
-
-                ws_server.notify_msg_by_tag(tag, author, message)
-
-                when (tag) {
-                    "" -> {
-                        // tag ещё не создан нужно ответить на вопрос и создать комнату
-                        val bot_answer: Pair<String, String> = ask_bot(question as String)
-                        ws_server.create_room(bot_answer.first as String, this)
-
-                        ws_server.notify_msg_by_tag(
-                            bot_answer.first as String,
-                            "bot_assistant" as String,
-                            bot_answer.second as String
-                        )
-                    }
-                    "error" -> {
-                    }
-                    else -> {
-                        val bot_answer: Pair<String, String> = ask_bot(question as String)
-                        ws_server.notify_msg_by_tag(
-                            bot_answer.first as String,
-                            "bot_assistant" as String,
-                            bot_answer.second as String
-                        )
-                    }
-                }
-            }
-        }
         get("/") {
             call.respondHtml(HttpStatusCode.OK, HTML::index)
         }
         route("api") {
-            post("nickname") {
-                val nickname = call.receive<String>()
-                call.respond("OK")
-            }
-            get("chat") {
-                val tag = call.parameters["tag"]
-                if (tag == null) {
-                    call.respond("ERROR")
-                    return@get
-                }
-                //val messages = db.return_messages(tag)
-                val wrap_to_message_ites = mutableListOf<MessageItem>()
-//                for (message in messages) {
-//                    wrap_to_message_ites.add(MessageItem(message.first, message.second))
-//                }
-
-                call.respond(wrap_to_message_ites)
-            }
             get("messages") {
                 val tag = call.parameters["tag"]
-                call.respond(ws_server.messages[tag] ?: emptyList<MessageItem>())
+                call.respond(messages[tag] ?: emptyList<MessageItem>())
             }
             post("message") {
                 val message = call.receive<MessageItem>()
                 val bot_answer: Pair<String, String> = ask_bot(message.content as String)
-                if (!ws_server.messages.containsKey(message.tag))
-                    ws_server.messages[message.tag] = mutableListOf()
-                ws_server.messages[message.tag]?.add(message)
-                ws_server.messages[message.tag]?.add(MessageItem("Bot Assistant", bot_answer.second, bot_answer.first))
-                call.respond(ws_server.messages[message.tag] ?: emptyList<MessageItem>())
-            }
-            get("tag") {
-                var id = call.parameters["question"]
-                call.respond("random chat tag")
-            }
-            post("search") {
-                val body = call.receive<String>()
-                val payload = mapOf("question" to body)
-                val resp = khttp.get("http://0.0.0.0:8888/getAnswer", params = payload)
-                call.respond(resp)
+                if (!messages.containsKey(message.tag))
+                    messages[message.tag] = mutableListOf()
+                messages[message.tag]?.add(message)
+                messages[message.tag]?.add(MessageItem("Bot Assistant", bot_answer.second, bot_answer.first))
+                call.respond(messages[message.tag] ?: emptyList<MessageItem>())
             }
         }
         static("/static") {

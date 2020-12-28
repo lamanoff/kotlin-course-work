@@ -45,11 +45,6 @@ val app = functionalComponent<RProps> {
                             h2(classes = "mdl-card__title-text") {
                                 +"Chat"
                             }
-                            span(classes = "chat-tag mdl-chip") {
-                                span(classes = "mdl-chip__text") {
-                                    +tag
-                                }
-                            }
                         }
                         div(classes = "content") {
                             messages.forEach { item ->

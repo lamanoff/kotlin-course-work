@@ -45,33 +45,3 @@ val NicknameInputComponent = functionalComponent<InputProps> { props ->
         }
     }
 }
-
-val QuestionInputComponent = functionalComponent<InputProps> { props ->
-    val (text, setText) = useState("")
-
-    val submitHandler: (Event) -> Unit = {
-        it.preventDefault()
-        setText("")
-        props.onSubmit(text)
-    }
-
-    val changeHandler: (Event) -> Unit = {
-        val value = (it.target as HTMLInputElement).value
-        setText(value)
-    }
-
-    form {
-        attrs.onSubmitFunction = submitHandler
-        div (classes = "mdl-textfield mdl-js-textfield mdl-textfield--floating-label") {
-            input(InputType.text, classes = "mdl-textfield__input") {
-                attrs.id = "question_input"
-                attrs.onChangeFunction = changeHandler
-                attrs.value = text
-            }
-            label(classes = "mdl-textfield__label") {
-                +"Question"
-                attrs["for"] = "question_input"
-            }
-        }
-    }
-}
