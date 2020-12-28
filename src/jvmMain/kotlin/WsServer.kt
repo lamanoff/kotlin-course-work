@@ -1,5 +1,6 @@
 package io.ktor.samples.chat
 
+import MessageItem
 import io.ktor.http.cio.websocket.*
 import org.json.JSONObject
 import java.util.*
@@ -15,6 +16,8 @@ class WsServer {
     val lastMessages = LinkedList<String>()
     val members = ConcurrentHashMap<String, MutableList<WebSocketSession>>()
     val tag_sockets = ConcurrentHashMap<String, MutableList<WebSocketSession>>()
+
+    val messages = ConcurrentHashMap<String, MutableList<MessageItem>>()
 
     suspend fun memberJoin(member: String, tag_chat: String?, socket: WebSocketSession) {
         if (tag_chat == null) {
@@ -42,6 +45,7 @@ class WsServer {
         for (sock in sockets_by_tag){
             val json = JSONObject(hashMapOf("tag" to tag, "author" to from_name, "content" to message) as Map<String, Any>?)
             sock.send(Frame.Text(json.toString()))
+            this.messages[tag]?.add(MessageItem(from_name, message, tag))
         }
     }
 
@@ -50,6 +54,7 @@ class WsServer {
             this.tag_sockets[tag_room]?.add(socket)
         } else {
             this.tag_sockets[tag_room] = mutableListOf(socket)
+            this.messages[tag_room] = mutableListOf()
         }
     }
 

@@ -57,9 +57,7 @@ fun ask_bot(question: String): Pair<String, String> {
 }
 
 fun Application.main() {
-    val db = DbController()
     val ws_server = WsServer()
-    db.start()
 
     install(ContentNegotiation) {
         json()
@@ -151,9 +149,18 @@ fun Application.main() {
 
                 call.respond(wrap_to_message_ites)
             }
+            get("messages") {
+                val tag = call.parameters["tag"]
+                call.respond(ws_server.messages[tag] ?: emptyList<MessageItem>())
+            }
             post("message") {
                 val message = call.receive<MessageItem>()
-                call.respond(listOf(message))
+                val bot_answer: Pair<String, String> = ask_bot(message.content as String)
+                if (!ws_server.messages.containsKey(message.tag))
+                    ws_server.messages[message.tag] = mutableListOf()
+                ws_server.messages[message.tag]?.add(message)
+                ws_server.messages[message.tag]?.add(MessageItem("Bot Assistant", bot_answer.first, bot_answer.second))
+                call.respond(ws_server.messages[message.tag] ?: emptyList<MessageItem>())
             }
             get("tag") {
                 var id = call.parameters["question"]

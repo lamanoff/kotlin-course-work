@@ -12,10 +12,10 @@ val jsonClient = HttpClient {
 
 val endpoint = window.location.origin
 
-suspend fun getMessages(chat_id: Int) : MutableList<MessageItem> {
-    return jsonClient.get("$endpoint/api/chat"){
+suspend fun getMessages(tag: String) : List<MessageItem> {
+    return jsonClient.get("$endpoint/api/messages"){
         contentType(ContentType.Application.Json)
-        parameter("id", chat_id)
+        parameter("tag", tag)
     }
 }
 
@@ -26,10 +26,10 @@ suspend fun getTag(question: String) : String {
     }
 }
 
-suspend fun sendMessage(chat_id: Int, author: String, content: String) : List<MessageItem> {
+suspend fun sendMessage(author: String, content: String, tag: String) : List<MessageItem> {
     return jsonClient.post("$endpoint/api/message"){
         contentType(ContentType.Application.Json)
-        body = MessageItem(author, content)
+        body = MessageItem(author, content, tag)
     }
 }
 
