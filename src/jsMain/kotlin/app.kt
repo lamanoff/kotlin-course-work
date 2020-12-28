@@ -25,7 +25,7 @@ val app = functionalComponent<RProps> {
         console.info(event.data.toString())
         val message = JSON.parse<MessageItem>(event.data.toString())
         console.info(messages.union(listOf(message)).toMutableList())
-        setMessages(messages.plus(message))
+        setMessages(messages.union(listOf(message)).toMutableList())
         if (message.tag != "")
             setTag(message.tag)
     }
