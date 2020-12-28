@@ -159,7 +159,7 @@ fun Application.main() {
                 if (!ws_server.messages.containsKey(message.tag))
                     ws_server.messages[message.tag] = mutableListOf()
                 ws_server.messages[message.tag]?.add(message)
-                ws_server.messages[message.tag]?.add(MessageItem("Bot Assistant", bot_answer.first, bot_answer.second))
+                ws_server.messages[message.tag]?.add(MessageItem("Bot Assistant", bot_answer.second, bot_answer.first))
                 call.respond(ws_server.messages[message.tag] ?: emptyList<MessageItem>())
             }
             get("tag") {
